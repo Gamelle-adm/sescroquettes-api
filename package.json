@@ -1,0 +1,86 @@
+{
+  "name": "express-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start:server:watch": "nodemon app.js",
+    "lint": "eslint --fix .",
+    "ts-node": "ts-node --compiler-options '{\"module\": \"commonjs\"}'",
+    "start": "npm-run-all generate-db-client migrate:deploy start:server",
+    "generate-db-client": "npx prisma generate",
+    "migrate:deploy": "npx prisma migrate deploy",
+    "start:server": "node app.js",
+    "start:watch": "nodemon app.js",
+    "dev": "npm-run-all migrate:dev start:watch",
+    "reset-db": "npx prisma migrate reset",
+    "migrate:dev": "npx prisma migrate dev",
+    "migrate:test": "dotenv -- cross-var \"DATABASE_URL=%DATABASE_URL_TEST% npx prisma migrate deploy\"",
+    "test": "NODE_ENV=test npm-run-all migrate:test test:run",
+    "test:run": "jest --testRunner='jest-circus/runner' --maxWorkers=1 --detectOpenHandles",
+    "test:watch": "jest --testRunner='jest-circus/runner' --maxWorkers=1 --watch --detectOpenHandles",
+    "wait-for-db": "node ./scripts/wait-for-db.js"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
+  },
+  "jest": {
+    "testRunner": "jest-circus/runner",
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setupTests.js"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "2.27.0",
+    "app-root-path": "^3.0.0",
+    "argon2": "^0.27.2",
+    "axios": "^0.21.1",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "4.17.1",
+    "express-async-handler": "^1.1.4",
+    "express-mysql-session": "^2.1.6",
+    "express-session": "^1.17.2",
+    "express-useragent": "^1.0.15",
+    "faker": "^5.1.0",
+    "joi": "^17.3.0",
+    "joi-password": "^1.4.5",
+    "joi-phone-number": "^5.0.1",
+    "lodash": "^4.17.20",
+    "multer": "^1.4.2",
+    "mysql2": "^2.2.5",
+    "nodemailer": "^6.6.1",
+    "npm-run-all": "^4.1.5",
+    "passport": "^0.4.1",
+    "passport-facebook": "^3.0.0",
+    "passport-google-oauth": "^2.0.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0",
+    "prisma": "2.27",
+    "public-ip": "^4.0.4",
+    "sanitize-filename": "^1.6.3",
+    "typescript": "^4.3.2",
+    "uniqid": "^5.3.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.14.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jest": "^24.1.3",
+    "husky": "^4.3.0",
+    "jest": "^26.6.3",
+    "jest-circus": "^26.6.3",
+    "nodemon": "^2.0.12",
+    "supertest": "^4.0.2",
+    "ts-node": "^10.0.0"
+  }
+}

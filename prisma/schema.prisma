@@ -1,0 +1,158 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["orderByAggregateGroup", "referentialActions"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  Int          @id @default(autoincrement())
+  firstname           String       @db.VarChar(255)
+  lastname            String       @db.VarChar(255)
+  phone               String?      @db.VarChar(20)
+  email               String       @unique @db.VarChar(255)
+  hashedPassword      String       @db.VarChar(255)
+  role                String       @default("user") @db.VarChar(255)
+  registeredAt        DateTime
+  avatarUrl           String?      @db.VarChar(255)
+  confirmedEmailToken String       @default("pending") @db.VarChar(255)
+  resetPasswordToken  String?      @db.VarChar(255)
+  googleId            String?      @db.VarChar(255)
+  facebookId          String?      @db.VarChar(255)
+  Animals             Animal[]
+  History             History[]
+  Favorites           Favorite[]
+  Statistics          Statistics[]
+  Rating              Rating[]
+}
+
+model AnimalCategory {
+  id         Int          @id @default(autoincrement())
+  name       String       @unique @db.VarChar(255)
+  Foods      Food[]
+  Animals    Animal[]
+  Statistics Statistics[]
+}
+
+model Breed {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique @db.VarChar(255)
+  gamelleId Int      @unique
+  speciesId Int
+  Animals   Animal[]
+}
+
+model FoodType {
+  id         Int          @id @default(autoincrement())
+  name       String       @unique @db.VarChar(255)
+  Foods      Food[]
+  Statistics Statistics[]
+}
+
+model Food {
+  id                              Int             @id @default(autoincrement())
+  gamelleId                       Int             @unique
+  brand                           String?         @db.VarChar(255)
+  name                            String?         @db.VarChar(255)
+  barcode                         String?         @db.VarChar(255)
+  foodTypeId                      Int?
+  FoodTypes                       FoodType?       @relation(fields: [foodTypeId], references: [id])
+  animalCategoryId                Int?
+  AnimalCategories                AnimalCategory? @relation(fields: [animalCategoryId], references: [id])
+  image                           String?         @db.VarChar(255)
+  amazonPrice                     Decimal?        @db.Decimal(10, 2)
+  zooplusPrice                    Decimal?        @db.Decimal(10, 2)
+  croquettelandPrice              Decimal?        @db.Decimal(10, 2)
+  amazonLastpriceTimeStamp        DateTime?
+  zooplusLastpriceTimeStamp       DateTime?
+  croquettelandLastpriceTimeStamp DateTime?
+  History                         History[]
+  Favorites                       Favorite[]
+  Statistics                      Statistics[]
+  Rating                          Rating[]
+}
+
+model Animal {
+  id                  Int                  @id @default(autoincrement())
+  name                String               @db.VarChar(255)
+  avatarUrl           String?              @db.VarChar(255)
+  ownerId             Int
+  Owners              User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  animalCategoryId    Int?
+  AnimalCategories    AnimalCategory?      @relation(fields: [animalCategoryId], references: [id])
+  breedId             Int?
+  Breeds              Breed?               @relation(fields: [breedId], references: [id])
+  AnimalFavoriteFoods AnimalFavoriteFood[]
+}
+
+model Favorite {
+  id                  Int                  @id @default(autoincrement())
+  userId              Int
+  Users               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  foodId              Int
+  Foods               Food                 @relation(fields: [foodId], references: [id])
+  AnimalFavoriteFoods AnimalFavoriteFood[]
+}
+
+model History {
+  consultedAt DateTime
+  userId      Int
+  Users       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  foodId      Int
+  Foods       Food     @relation(fields: [foodId], references: [id])
+
+  @@id([userId, foodId])
+}
+
+model AnimalFavoriteFood {
+  id         Int      @id @default(autoincrement())
+  animalId   Int
+  Animals    Animal   @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  favoriteId Int
+  Favorites  Favorite @relation(fields: [favoriteId], references: [id], onDelete: Cascade)
+}
+
+model sessions {
+  session_id String  @id @db.VarChar(128)
+  expires    Int     @db.UnsignedInt
+  data       String? @db.MediumText
+}
+
+model Statistics {
+  id               Int             @id @default(autoincrement())
+  requestSentAt    DateTime
+  userId           Int?
+  Users            User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requestInfo      String          @db.VarChar(255)
+  brand            String?         @db.VarChar(255)
+  foodTypeId       Int?
+  FoodTypes        FoodType?       @relation(fields: [foodTypeId], references: [id])
+  animalCategoryId Int?
+  AnimalCategories AnimalCategory? @relation(fields: [animalCategoryId], references: [id])
+  searchText       String?         @db.MediumText
+  foodId           Int?
+  Foods            Food?           @relation(fields: [foodId], references: [id])
+  device           String?         @db.VarChar(255)
+  osName           String?         @db.VarChar(255)
+  ipv4Address      String?         @db.VarChar(255)
+}
+
+model Rating {
+  appetance Int?
+  selle     Int?
+  digestion Int?
+  userId    Int
+  Users     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  foodId    Int
+  foods     Food     @relation(fields: [foodId], references: [id])
+  reviews   String?  @db.Text
+  postedAt  DateTime
+
+  @@id([userId, foodId])
+}
